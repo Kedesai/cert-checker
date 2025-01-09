@@ -17,7 +17,7 @@ CONFLUENCE_BASE_URL = "https://site.atlassian.net/wiki/rest/api/content"
 # Jira credentials (replace with your actual values)
 JIRA_USERNAME = "username@somewhere.com"
 JIRA_API_TOKEN = "Jira-api-Token"
-JIRA_PROJECT_KEY = "jiraprojectkey"
+JIRA_PROJECT_KEY = "your-jira-project-key"
 JIRA_BASE_URL = "https://site.atlassian.net/rest/api/2"
 
 
