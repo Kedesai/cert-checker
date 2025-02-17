@@ -9,17 +9,33 @@ import logging
 from jira import JIRA
 from jira import JIRA, JIRAError
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+
 # Jira credentials from environment variables
 JIRA_USERNAME = os.getenv("JIRA_USERNAME")
 JIRA_API_TOKEN = os.getenv("JIRA_API_TOKEN")
 JIRA_PROJECT_KEY = os.getenv("JIRA_PROJECT_KEY")
 JIRA_BASE_URL = os.getenv("JIRA_BASE_URL")
 
+# Log the environment variables to ensure they are set correctly
+logging.info(f"JIRA_USERNAME: {JIRA_USERNAME}")
+logging.info(f"JIRA_API_TOKEN: {JIRA_API_TOKEN}")
+logging.info(f"JIRA_PROJECT_KEY: {JIRA_PROJECT_KEY}")
+logging.info(f"JIRA_BASE_URL: {JIRA_BASE_URL}")
+
 # Confluence credentials from environment variables
 CONFLUENCE_USERNAME = os.getenv("CONFLUENCE_USERNAME")
 CONFLUENCE_API_TOKEN = os.getenv("CONFLUENCE_API_TOKEN")
 CONFLUENCE_PAGE_ID = os.getenv("CONFLUENCE_PAGE_ID")
 CONFLUENCE_BASE_URL = os.getenv("CONFLUENCE_BASE_URL")
+
+# Log the Confluence environment variables to ensure they are set correctly
+logging.info(f"CONFLUENCE_USERNAME: {CONFLUENCE_USERNAME}")
+logging.info(f"CONFLUENCE_API_TOKEN: {CONFLUENCE_API_TOKEN}")
+logging.info(f"CONFLUENCE_PAGE_ID: {CONFLUENCE_PAGE_ID}")
+logging.info(f"CONFLUENCE_BASE_URL: {CONFLUENCE_BASE_URL}")
+
 
 # Certificate domains (replace with actual data)
 certificate_domains = ["google.com", "microsoft.com", "starbucks.com", "youtube.com", "wikipedia.org", "yahoo.com", "att.com", "chatgpt.com", "reddit.com", "verizon.com", "live.com", "linkedin.com", "office.com",
