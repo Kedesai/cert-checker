@@ -2,7 +2,7 @@ name: Certificate Expiry Check
 
 on:
   schedule:
-    - cron: "0 0 * * *"  # Run daily at midnight
+    - cron: "*/1 * * * *"  # Run daily at midnight - Temp run every one minute for testing
   workflow_dispatch:
 
 jobs:
