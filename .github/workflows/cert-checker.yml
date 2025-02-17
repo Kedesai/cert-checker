@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'cert_checker.py'  
+      - '.cert_checker.py'  
       - '.github/workflows/cert-checker.yml'
 
 
