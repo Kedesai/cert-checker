@@ -21,7 +21,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install requests pyopenssl cryptography jira
+        pip install requests pyopenssl cryptography jira os
 
     - name: Run cert-checker.py script
       run: python cert-checker.py
