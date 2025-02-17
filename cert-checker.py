@@ -22,8 +22,8 @@ CONFLUENCE_PAGE_ID = os.getenv("CONFLUENCE_PAGE_ID")
 CONFLUENCE_BASE_URL = os.getenv("CONFLUENCE_BASE_URL")
 
 # Certificate domains (replace with actual data)
-certificate_domains = ["google.com", "microsoft.com", "starbucks.com", "youtube.com", "baidu.com", "wikipedia.org", "yahoo.com", "att.com", "chatgpt.com", "reddit.com", "verizon.com", "live.com", "linkedin.com", "office.com",
- "bing.com", "max.com", "discord.com", "samsung.com", "microsoft.com", "twitch.tv", "weather.com", "quora.com", "roblox.com", "duckduckgo.com", "fandom.com", "sharepoint.com", "qq.com"]
+certificate_domains = ["google.com", "microsoft.com", "starbucks.com", "youtube.com", "wikipedia.org", "yahoo.com", "att.com", "chatgpt.com", "reddit.com", "verizon.com", "live.com", "linkedin.com", "office.com",
+ "bing.com", "max.com", "discord.com", "samsung.com", "twitch.tv", "weather.com", "quora.com", "duckduckgo.com", "fandom.com", "sharepoint.com"]
 
 def check_certificate_expiry(domain):
     try:
