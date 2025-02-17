@@ -35,7 +35,12 @@ CERTIFICATE_DOMAINS = [
     "att.com", "chatgpt.com", "reddit.com", "verizon.com", "live.com",
     "linkedin.com", "office.com", "bing.com", "max.com", "discord.com",
     "samsung.com", "twitch.tv", "weather.com", "quora.com", "duckduckgo.com",
-    "fandom.com", "sharepoint.com"
+    "fandom.com", "sharepoint.com", "cnn.com", "wikipedia.org", "ebay.com", "craigslist.org",
+    "nytimes.com", "github.com", "stackoverflow.com", "bbc.co.uk", "imdb.com",
+    "hulu.com", "pinterest.com", "target.com", "bestbuy.com", "costco.com",
+    "lowes.com", "homeDepot.com", "walmart.com", "amazon.com", "apple.com",
+    "paypal.com", "bankofamerica.com", "chase.com", "capitalone.com", "discover.com",
+    "wellsfargo.com", "citi.com", "americanexpress.com", "usbank.com", "ally.com",
 ]
 
 def check_certificate_expiry(domain):
@@ -73,7 +78,7 @@ def get_existing_jira_issue(domain):
 
 def create_jira_issue(domain, days_remaining):
     """Create a new Jira issue for an expiring certificate."""
-    url = f"{JIRA_BASE_URL}/rest/api/2/issue"
+    url = f"{JIRA_BASE_URL}/issue"
     headers = {
         "Authorization": f"Basic {base64.b64encode(f'{JIRA_USERNAME}:{JIRA_API_TOKEN}'.encode()).decode()}",
         "Content-Type": "application/json",
@@ -86,18 +91,30 @@ def create_jira_issue(domain, days_remaining):
             "issuetype": {"name": "Task"},
         }
     }
+
+    # Log the request URL, headers, and payload for debugging
+    logging.info(f"Create Jira Issue Request URL: {url}")
+    logging.info(f"Create Jira Issue Headers: {headers}")
+    logging.info(f"Create Jira Issue Payload: {payload}")
+
     try:
         response = requests.post(url, headers=headers, json=payload)
-        response.raise_for_status()
-        logging.info(f"Jira issue created successfully for {domain}")
-        return response.json()["key"]
+        logging.info(f"Create Jira Issue Response Status Code: {response.status_code}")
+        logging.info(f"Create Jira Issue Response Content: {response.text}")
+
+        if response.status_code == 201:
+            logging.info(f"Jira issue created successfully for {domain}")
+            return response.json()["key"]
+        else:
+            logging.error(f"Failed to create Jira issue for {domain}. Status Code: {response.status_code}")
+            return None
     except requests.RequestException as e:
         logging.error(f"Error creating Jira issue for {domain}: {e}")
         return None
 
 def update_jira_issue(issue_key, days_remaining, domain):
     """Add a comment to an existing Jira issue."""
-    url = f"{JIRA_BASE_URL}/rest/api/2/issue/{issue_key}/comment"
+    url = f"{JIRA_BASE_URL}/issue/{issue_key}/comment"
     headers = {
         "Authorization": f"Basic {base64.b64encode(f'{JIRA_USERNAME}:{JIRA_API_TOKEN}'.encode()).decode()}",
         "Content-Type": "application/json",
@@ -105,10 +122,21 @@ def update_jira_issue(issue_key, days_remaining, domain):
     payload = {
         "body": f"Certificate for {domain} will expire in {days_remaining} days. Action required."
     }
+
+    # Log the request URL, headers, and payload for debugging
+    logging.info(f"Update Jira Issue Request URL: {url}")
+    logging.info(f"Update Jira Issue Headers: {headers}")
+    logging.info(f"Update Jira Issue Payload: {payload}")
+
     try:
         response = requests.post(url, headers=headers, json=payload)
-        response.raise_for_status()
-        logging.info(f"Comment added to Jira issue {issue_key}")
+        logging.info(f"Update Jira Issue Response Status Code: {response.status_code}")
+        logging.info(f"Update Jira Issue Response Content: {response.text}")
+
+        if response.status_code == 201:
+            logging.info(f"Comment added to Jira issue {issue_key}")
+        else:
+            logging.error(f"Failed to update Jira issue {issue_key}. Status Code: {response.status_code}")
     except requests.RequestException as e:
         logging.error(f"Error updating Jira issue {issue_key}: {e}")
 
@@ -219,4 +247,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
