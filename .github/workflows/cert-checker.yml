@@ -1,37 +1,36 @@
-name: Run Cert Checker Script
+name: Certificate Expiry Check
 
 on:
-  push:
-    branches:
-      - main
+  schedule:
+    - cron: "0 0 * * *"  # Run daily at midnight
+  workflow_dispatch:
 
 jobs:
-  run-cert-checker:
+  check-certificates:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.x'
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install requests pyopenssl cryptography jira
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests jira pyopenssl cryptography
 
-    - name: Run cert-checker.py script
-      env:
-        JIRA_USERNAME: ${{ secrets.JIRA_USERNAME }}
-        JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
-        JIRA_PROJECT_KEY: ${{ secrets.JIRA_PROJECT_KEY }}
-        JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
-        CONFLUENCE_USERNAME: ${{ secrets.CONFLUENCE_USERNAME }}
-        CONFLUENCE_API_TOKEN: ${{ secrets.CONFLUENCE_API_TOKEN }}
-        CONFLUENCE_PAGE_ID: ${{ secrets.CONFLUENCE_PAGE_ID }}
-        CONFLUENCE_BASE_URL: ${{ secrets.CONFLUENCE_BASE_URL }}
-      run: python cert-checker.py
-      
+      - name: Run certificate check script
+        env:
+          JIRA_USERNAME: ${{ secrets.JIRA_USERNAME }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          JIRA_PROJECT_KEY: ${{ secrets.JIRA_PROJECT_KEY }}
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          CONFLUENCE_USERNAME: ${{ secrets.CONFLUENCE_USERNAME }}
+          CONFLUENCE_API_TOKEN: ${{ secrets.CONFLUENCE_API_TOKEN }}
+          CONFLUENCE_PAGE_ID: ${{ secrets.CONFLUENCE_PAGE_ID }}
+          CONFLUENCE_BASE_URL: ${{ secrets.CONFLUENCE_BASE_URL }}
+        run: |
+          python certificate_check.py
