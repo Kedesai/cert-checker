@@ -1,9 +1,18 @@
 name: Certificate Expiry Check
 
 on:
-  schedule:
-    - cron: "*/1 * * * *"  # Run daily at midnight - Temp run every one minute for testing
-  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'cert_checker.py'  
+      - '.github/workflows/cert-checker.yml'
+
+
+#on:
+#  schedule:
+#    - cron: "*/1 * * * *"  # Run daily at midnight - Temp run every one minute for testing
+#  workflow_dispatch:
 
 jobs:
   check-certificates:
