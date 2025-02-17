@@ -38,7 +38,7 @@ logging.info(f"CONFLUENCE_BASE_URL: {CONFLUENCE_BASE_URL}")
 
 
 # Certificate domains (replace with actual data)
-certificate_domains = ["google.com", "microsoft.com", "starbucks.com", "youtube.com", "wikipedia.org", "yahoo.com", "att.com", "chatgpt.com", "reddit.com", "verizon.com", "live.com", "linkedin.com", "office.com",
+certificate_domains = ["google.com", "microsoft.com", "starbucks.com", "youtube.com", "yahoo.com", "att.com", "chatgpt.com", "reddit.com", "verizon.com", "live.com", "linkedin.com", "office.com",
  "bing.com", "max.com", "discord.com", "samsung.com", "twitch.tv", "weather.com", "quora.com", "duckduckgo.com", "fandom.com", "sharepoint.com"]
 
 def check_certificate_expiry(domain):
