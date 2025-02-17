@@ -1,17 +1,17 @@
 name: Certificate Expiry Check
 
-on:
-  push:
-    branches:
-      - main
-    paths:
-      - '*'
-
-
 #on:
-#  schedule:
-#    - cron: "*/1 * * * *"  # Run daily at midnight - Temp run every one minute for testing
-#  workflow_dispatch:
+#  push:
+#    branches:
+#      - main
+#    paths:
+#      - '*'
+
+
+on:
+  schedule:
+    - cron: "0 0 * * *"  # Run daily at midnight
+  workflow_dispatch:
 
 jobs:
   check-certificates:
