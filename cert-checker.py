@@ -4,6 +4,7 @@ import json
 import ssl
 import socket
 import datetime
+import os
 import logging
 from jira import JIRA
 from jira import JIRA, JIRAError
