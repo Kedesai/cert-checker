@@ -2,6 +2,8 @@ import os
 import requests
 import base64
 import ssl
+import json
+import sys
 import socket
 import datetime
 import logging
@@ -131,30 +133,57 @@ def close_jira_issue(issue_key):
 
 def update_confluence_page(content):
     """Update the Confluence page with the certificate information."""
-    url = f"{CONFLUENCE_BASE_URL}/rest/api/content/{CONFLUENCE_PAGE_ID}"
+    url = f"{CONFLUENCE_BASE_URL}/{CONFLUENCE_PAGE_ID}"
     headers = {
         "Authorization": f"Basic {base64.b64encode(f'{CONFLUENCE_USERNAME}:{CONFLUENCE_API_TOKEN}'.encode()).decode()}",
         "Content-Type": "application/json",
     }
-    existing_content = requests.get(url, headers=headers).json()
-    version = existing_content["version"]["number"] + 1
-    payload = {
-        "version": {"number": version},
-        "title": existing_content["title"],
-        "type": "page",
-        "body": {
-            "storage": {
-                "value": content,
-                "representation": "storage"
+
+    # Log the request URL and headers for debugging
+    logging.info(f"Request URL: {url}")
+    logging.info(f"Request Headers: {headers}")
+
+    try:
+        # Fetch existing content
+        response = requests.get(url, headers=headers)
+        logging.info(f"Response Status Code: {response.status_code}")
+        logging.info(f"Response Content: {response.text}")
+
+        # Check if the response is valid JSON
+        if response.status_code != 200:
+            logging.error(f"Failed to fetch Confluence page. Status Code: {response.status_code}")
+            return
+
+        existing_content = response.json()
+
+        # Prepare payload for update
+        version = existing_content["version"]["number"] + 1
+        payload = {
+            "version": {"number": version},
+            "title": existing_content["title"],
+            "type": "page",
+            "body": {
+                "storage": {
+                    "value": content,
+                    "representation": "storage"
+                }
             }
         }
-    }
-    try:
-        response = requests.put(url, headers=headers, json=payload)
-        response.raise_for_status()
-        logging.info("Confluence page updated successfully")
+
+        # Update the page
+        update_response = requests.put(url, headers=headers, json=payload)
+        logging.info(f"Update Response Status Code: {update_response.status_code}")
+        logging.info(f"Update Response Content: {update_response.text}")
+
+        if update_response.status_code == 200:
+            logging.info("Confluence page updated successfully")
+        else:
+            logging.error(f"Failed to update Confluence page. Status Code: {update_response.status_code}")
+
     except requests.RequestException as e:
         logging.error(f"Error updating Confluence page: {e}")
+    except json.JSONDecodeError as e:
+        logging.error(f"Invalid JSON response from Confluence API: {e}")
 
 def main():
     certificate_data = []
