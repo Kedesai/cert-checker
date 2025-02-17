@@ -7,15 +7,6 @@ import datetime
 import logging
 from jira import JIRA
 from jira import JIRA, JIRAError
-import requests
-import base64
-import json
-import ssl
-import socket
-import datetime
-import logging
-from jira import JIRA
-from jira import JIRA, JIRAError
 
 
 # Certificate domains (replace with actual data)
