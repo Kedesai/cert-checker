@@ -224,6 +224,7 @@ def get_server_certificate(domain):
     return response.raw.read()
 
 def main():
+    jira = JIRA(JIRA_BASE_URL, basic_auth=(JIRA_USERNAME, JIRA_API_TOKEN))
     table_rows = ""
     certificate_data = []
 
@@ -266,7 +267,7 @@ def main():
                 not_after = cert_data.notAfter.strftime("%Y-%m-%d")
 
                 # Check if recently issued
-                if is_certificate_recently_issued(not_before, notAfter):
+                if is_certificate_recently_issued(not_before, not_after):
                     close_jira_issue(jira, issue_key, domain)
                     print(f"Jira issue closed for {domain} as certificate is recently issued.")
                 else:
