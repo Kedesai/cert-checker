@@ -24,4 +24,13 @@ jobs:
         pip install requests pyopenssl cryptography jira
 
     - name: Run cert-checker.py script
-      run: python cert-checker.py
+      env:
+        JIRA_USERNAME: ${{ secrets.JIRA_USERNAME }}
+        JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+        JIRA_PROJECT_KEY: ${{ secrets.JIRA_PROJECT_KEY }}
+        JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+        CONFLUENCE_USERNAME: ${{ secrets.CONFLUENCE_USERNAME }}
+        CONFLUENCE_API_TOKEN: ${{ secrets.CONFLUENCE_API_TOKEN }}
+        CONFLUENCE_PAGE_ID: ${{ secrets.CONFLUENCE_PAGE_ID }}
+        CONFLUENCE_BASE_URL: ${{ secrets.CONFLUENCE_BASE_URL }}
+      run: python cert-checker/cert-checker.py
