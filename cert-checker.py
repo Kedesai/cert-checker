@@ -5,6 +5,7 @@ import ssl
 import socket
 import datetime
 import logging
+import json
 from jira import JIRA
 
 # Configure logging
@@ -140,22 +141,72 @@ def update_jira_issue(issue_key, days_remaining, domain):
     except requests.RequestException as e:
         logging.error(f"Error updating Jira issue {issue_key}: {e}")
 
-def close_jira_issue(issue_key):
-    """Close a Jira issue."""
-    url = f"{JIRA_BASE_URL}/rest/api/2/issue/{issue_key}/transitions"
-    headers = {
-        "Authorization": f"Basic {base64.b64encode(f'{JIRA_USERNAME}:{JIRA_API_TOKEN}'.encode()).decode()}",
-        "Content-Type": "application/json",
-    }
-    payload = {
-        "transition": {"id": "31"}  # Replace "31" with the ID of your "Close" transition
-    }
+def transition_renewed_cert_issues(domain, days_remaining, issue_key):
+    """
+    Transition issues to Done if:
+    - Certificate has >300 days remaining
+    - Was renewed in last 10 days (for 1-year certificates)
+    - Issue is in Open/In Progress status
+    """
     try:
-        response = requests.post(url, headers=headers, json=payload)
-        response.raise_for_status()
-        logging.info(f"Jira issue {issue_key} closed successfully")
-    except requests.RequestException as e:
-        logging.error(f"Error closing Jira issue {issue_key}: {e}")
+        # Calculate renewal date (assuming 1-year certificates)
+        now = datetime.datetime.now(datetime.timezone.utc)
+        expiry_date = now + datetime.timedelta(days=days_remaining)
+        renewal_date = expiry_date - datetime.timedelta(days=365)
+        
+        # Check conditions
+        if days_remaining <= 300:
+            logging.info(f"Issue {issue_key} not eligible - only {days_remaining} days remaining")
+            return False
+            
+        if (now - renewal_date).days > 10:
+            logging.info(f"Issue {issue_key} not eligible - last renewed {(now - renewal_date).days} days ago")
+            return False
+
+        # Get issue details
+        jira = JIRA(
+            server=JIRA_BASE_URL,
+            basic_auth=(JIRA_USERNAME, JIRA_API_TOKEN)
+        )
+
+        issue = jira.issue(issue_key)
+        current_status = issue.fields.status.name.lower()
+        
+        if current_status not in ['open', 'in progress']:
+            logging.info(f"Issue {issue_key} not eligible - current status: {current_status}")
+            return False
+        
+        # Find and execute transition
+        transitions = jira.transitions(issue_key)
+        done_transition = next(
+            (t for t in transitions if t['name'].lower() == 'done'),
+            None
+        )
+        
+        if not done_transition:
+            logging.error(f"No 'Done' transition found for {issue_key}")
+            return False
+        
+        jira.transition_issue(
+            issue_key,
+            done_transition['id'],
+            fields={'resolution': {'name': 'Done'}}
+        )
+        
+        # Add informative comment
+        comment = f"""Certificate automatically transitioned to Done because:
+        - Renewed on {renewal_date.date()} (within last 10 days)
+        - Now has {days_remaining} days remaining
+        - Previous status: {current_status}"""
+        jira.add_comment(issue_key, comment)
+        
+        logging.info(f"Successfully transitioned {issue_key} to Done")
+        return True
+        
+    except Exception as e:
+        logging.error(f"Error processing {issue_key}: {str(e)}")
+        return False
+
 
 def update_confluence_page(content):
     """Update the Confluence page with the certificate information."""
@@ -217,16 +268,15 @@ def main():
         days_remaining = check_certificate_expiry(domain)
         if days_remaining is not None:
             certificate_data.append({"domain": domain, "days_remaining": days_remaining})
+            issue_key = get_existing_jira_issue(domain)
+            
             if days_remaining <= 30:
-                issue_key = get_existing_jira_issue(domain)
                 if issue_key:
                     update_jira_issue(issue_key, days_remaining, domain)
                 else:
                     create_jira_issue(domain, days_remaining)
-            elif days_remaining > 365:
-                issue_key = get_existing_jira_issue(domain)
-                if issue_key:
-                    close_jira_issue(issue_key)
+            elif days_remaining > 300 and issue_key:  # Changed from 365 to 300
+                transition_renewed_cert_issues(domain, days_remaining, issue_key)
 
     # Sort certificates by days remaining
     sorted_certificates = sorted(certificate_data, key=lambda x: x["days_remaining"])
